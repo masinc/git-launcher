@@ -1,9 +1,8 @@
-import { parseRepoUrl } from './lib/urlParser';
-import { getSettings, getEnabledTools, buildToolUrl } from './lib/settings';
+import { parseRepoUrl } from "./lib/urlParser";
+import { getSettings, getEnabledTools, buildToolUrl } from "./lib/settings";
 
 export default defineBackground(() => {
-  console.log('GitHub Launcher background script loaded');
-
+  console.log("GitHub Launcher background script loaded");
 
   // Create context menu
   browser.runtime.onInstalled.addListener(async () => {
@@ -33,7 +32,7 @@ export default defineBackground(() => {
     if (!repoInfo) return;
 
     const tools = await getEnabledTools();
-    const tool = tools.find(t => t.id === info.menuItemId);
+    const tool = tools.find((t) => t.id === info.menuItemId);
     if (!tool) return;
 
     const url = buildToolUrl(tool, repoInfo.owner, repoInfo.repo);
@@ -45,31 +44,29 @@ async function createContextMenu() {
   await browser.contextMenus.removeAll();
 
   const tools = await getEnabledTools();
-  
+
   if (tools.length === 0) return;
 
   // Create parent menu
   browser.contextMenus.create({
-    id: 'git-launcher',
-    title: 'Open with GitHub Launcher',
-    contexts: ['page'],
-    documentUrlPatterns: [
-      '*://github.com/*'
-    ]
+    id: "git-launcher",
+    title: "Open with GitHub Launcher",
+    contexts: ["page"],
+    documentUrlPatterns: ["*://github.com/*"],
   });
 
   // Create submenu for each tool
-  tools.forEach(tool => {
+  tools.forEach((tool) => {
     browser.contextMenus.create({
       id: tool.id,
-      parentId: 'git-launcher',
+      parentId: "git-launcher",
       title: tool.name,
-      contexts: ['page'],
+      contexts: ["page"],
       documentUrlPatterns: [
-        '*://github.com/*',
-        '*://gitlab.com/*',
-        '*://bitbucket.org/*'
-      ]
+        "*://github.com/*",
+        "*://gitlab.com/*",
+        "*://bitbucket.org/*",
+      ],
     });
   });
 }

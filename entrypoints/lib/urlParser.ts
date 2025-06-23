@@ -6,14 +6,14 @@ export interface RepoInfo {
 }
 
 export function parseGitHubUrl(url: string): RepoInfo | null {
-  const match = url.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+  const match = url.match(/github\.com\/([^/]+)\/([^/]+)/);
   if (!match) return null;
 
   const [, owner, repo] = match;
-  const repoName = repo.replace(/\.git$/, '');
-  
+  const repoName = repo.replace(/\.git$/, "");
+
   // Extract branch and path if present
-  const branchMatch = url.match(/\/tree\/([^\/]+)(\/(.*))?/);
+  const branchMatch = url.match(/\/tree\/([^/]+)(\/(.*))?/);
   const branch = branchMatch?.[1];
   const path = branchMatch?.[3];
 
@@ -21,13 +21,13 @@ export function parseGitHubUrl(url: string): RepoInfo | null {
 }
 
 export function parseGitLabUrl(url: string): RepoInfo | null {
-  const match = url.match(/gitlab\.com\/([^\/]+)\/([^\/]+)/);
+  const match = url.match(/gitlab\.com\/([^/]+)\/([^/]+)/);
   if (!match) return null;
 
   const [, owner, repo] = match;
-  const repoName = repo.replace(/\.git$/, '');
-  
-  const branchMatch = url.match(/\/-\/tree\/([^\/]+)(\/(.*))?/);
+  const repoName = repo.replace(/\.git$/, "");
+
+  const branchMatch = url.match(/\/-\/tree\/([^/]+)(\/(.*))?/);
   const branch = branchMatch?.[1];
   const path = branchMatch?.[3];
 
@@ -35,13 +35,13 @@ export function parseGitLabUrl(url: string): RepoInfo | null {
 }
 
 export function parseBitbucketUrl(url: string): RepoInfo | null {
-  const match = url.match(/bitbucket\.org\/([^\/]+)\/([^\/]+)/);
+  const match = url.match(/bitbucket\.org\/([^/]+)\/([^/]+)/);
   if (!match) return null;
 
   const [, owner, repo] = match;
-  const repoName = repo.replace(/\.git$/, '');
-  
-  const branchMatch = url.match(/\/src\/([^\/]+)(\/(.*))?/);
+  const repoName = repo.replace(/\.git$/, "");
+
+  const branchMatch = url.match(/\/src\/([^/]+)(\/(.*))?/);
   const branch = branchMatch?.[1];
   const path = branchMatch?.[3];
 
@@ -49,8 +49,8 @@ export function parseBitbucketUrl(url: string): RepoInfo | null {
 }
 
 export function parseRepoUrl(url: string): RepoInfo | null {
-  if (url.includes('github.com')) return parseGitHubUrl(url);
-  if (url.includes('gitlab.com')) return parseGitLabUrl(url);
-  if (url.includes('bitbucket.org')) return parseBitbucketUrl(url);
+  if (url.includes("github.com")) return parseGitHubUrl(url);
+  if (url.includes("gitlab.com")) return parseGitLabUrl(url);
+  if (url.includes("bitbucket.org")) return parseBitbucketUrl(url);
   return null;
 }
