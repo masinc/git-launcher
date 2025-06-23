@@ -7,6 +7,9 @@ export default defineConfig({
   vite: () => ({
     plugins: [tailwindcss()],
   }),
+  runner: {
+    startUrls: ['https://github.com/axios/axios'],
+  },
   manifest: {
     name: 'GitHub Launcher',
     description: 'Open GitHub repositories in GitIngest, Deepwiki and other tools',

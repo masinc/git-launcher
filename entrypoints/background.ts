@@ -4,6 +4,7 @@ import { getSettings, getEnabledTools, buildToolUrl } from './lib/settings';
 export default defineBackground(() => {
   console.log('GitHub Launcher background script loaded');
 
+
   // Create context menu
   browser.runtime.onInstalled.addListener(async () => {
     const settings = await getSettings();
