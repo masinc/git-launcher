@@ -1,143 +1,94 @@
 import { useState, useEffect } from 'react';
-import { Settings, Tool, getSettings, saveSettings } from '../lib/settings';
+import { getEnabledTools, buildToolUrl, Tool } from '../lib/settings';
+import { parseRepoUrl, RepoInfo } from '../lib/urlParser';
 
 function App() {
-  const [settings, setSettings] = useState<Settings | null>(null);
-  const [newToolName, setNewToolName] = useState('');
-  const [newToolUrl, setNewToolUrl] = useState('');
+  const [tools, setTools] = useState<Tool[]>([]);
+  const [repoInfo, setRepoInfo] = useState<RepoInfo | null>(null);
+  const [currentUrl, setCurrentUrl] = useState<string>('');
 
   useEffect(() => {
-    getSettings().then(setSettings);
+    // Get current tab URL and tools
+    Promise.all([
+      browser.tabs.query({ active: true, currentWindow: true }),
+      getEnabledTools()
+    ]).then(([tabs, enabledTools]) => {
+      const tab = tabs[0];
+      if (tab?.url) {
+        setCurrentUrl(tab.url);
+        const repo = parseRepoUrl(tab.url);
+        setRepoInfo(repo);
+      }
+      setTools(enabledTools);
+    });
   }, []);
 
-  const handleToggleTool = async (toolId: string) => {
-    if (!settings) return;
-    
-    const updatedTools = settings.tools.map(tool =>
-      tool.id === toolId ? { ...tool, enabled: !tool.enabled } : tool
-    );
-    
-    const newSettings = { ...settings, tools: updatedTools };
-    setSettings(newSettings);
-    await saveSettings(newSettings);
+  const handleToolClick = (tool: Tool) => {
+    if (!repoInfo) return;
+    const url = buildToolUrl(tool, repoInfo.owner, repoInfo.repo);
+    browser.tabs.create({ url });
+    window.close(); // Close popup after opening tool
   };
 
-  const handleAddTool = async () => {
-    if (!settings || !newToolName || !newToolUrl) return;
-    
-    const newTool: Tool = {
-      id: Date.now().toString(),
-      name: newToolName,
-      urlTemplate: newToolUrl,
-      enabled: true
-    };
-    
-    const newSettings = {
-      ...settings,
-      tools: [...settings.tools, newTool]
-    };
-    
-    setSettings(newSettings);
-    await saveSettings(newSettings);
-    setNewToolName('');
-    setNewToolUrl('');
+  const openSettings = () => {
+    const url = browser.runtime.getURL('/options.html');
+    console.log('Opening settings URL:', url);
+    browser.tabs.create({ url });
+    window.close();
   };
-
-  const handleDeleteTool = async (toolId: string) => {
-    if (!settings) return;
-    
-    const newSettings = {
-      ...settings,
-      tools: settings.tools.filter(tool => tool.id !== toolId)
-    };
-    
-    setSettings(newSettings);
-    await saveSettings(newSettings);
-  };
-
-  const handleToggleContextMenu = async () => {
-    if (!settings) return;
-    
-    const newSettings = {
-      ...settings,
-      showInContextMenu: !settings.showInContextMenu
-    };
-    
-    setSettings(newSettings);
-    await saveSettings(newSettings);
-  };
-
-  if (!settings) {
-    return <div>Loading...</div>;
-  }
 
   return (
-    <div className="w-96 p-4 bg-white">
-      <h1 className="text-2xl font-bold mb-4 text-gray-900">GitHub Launcher</h1>
-      
-      <section className="mb-6">
-        <h2 className="text-lg font-semibold mb-3 text-gray-800">Tools</h2>
-        {settings.tools.map(tool => (
-          <div key={tool.id} className="flex items-center mb-2 p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
-            <input
-              type="checkbox"
-              checked={tool.enabled}
-              onChange={() => handleToggleTool(tool.id)}
-              className="mr-3 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <div className="flex-1">
-              <div className="font-medium text-gray-900">{tool.name}</div>
-              <div className="text-xs text-gray-500">{tool.urlTemplate}</div>
-            </div>
-            {!['gitingest', 'deepwiki'].includes(tool.id) && (
-              <button
-                onClick={() => handleDeleteTool(tool.id)}
-                className="px-2 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-              >
-                Delete
-              </button>
-            )}
-          </div>
-        ))}
-      </section>
-
-      <section className="mb-6">
-        <h2 className="text-lg font-semibold mb-3 text-gray-800">Add Custom Tool</h2>
-        <input
-          type="text"
-          placeholder="Tool name"
-          value={newToolName}
-          onChange={(e) => setNewToolName(e.target.value)}
-          className="w-full p-2 mb-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-        />
-        <input
-          type="text"
-          placeholder="URL template (use {owner} and {repo})"
-          value={newToolUrl}
-          onChange={(e) => setNewToolUrl(e.target.value)}
-          className="w-full p-2 mb-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-        />
+    <div className="w-80 p-4 bg-white">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-xl font-bold text-gray-900">GitHub Launcher</h1>
         <button
-          onClick={handleAddTool}
-          disabled={!newToolName || !newToolUrl}
-          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          onClick={openSettings}
+          className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
+          title="Settings"
         >
-          Add Tool
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
         </button>
-      </section>
+      </div>
 
-      <section>
-        <h2 className="text-lg font-semibold mb-3 text-gray-800">Options</h2>
-        <label className="flex items-center cursor-pointer">
-          <input
-            type="checkbox"
-            checked={settings.showInContextMenu}
-            onChange={handleToggleContextMenu}
-            className="mr-3 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-          />
-          <span className="text-gray-700">Show in context menu</span>
-        </label>
-      </section>
+      {repoInfo ? (
+        <div>
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+            <div className="text-sm text-blue-600 font-medium">Current Repository</div>
+            <div className="text-lg font-semibold text-blue-900">{repoInfo.owner}/{repoInfo.repo}</div>
+          </div>
+
+          <div className="space-y-2">
+            {tools.map(tool => (
+              <button
+                key={tool.id}
+                onClick={() => handleToolClick(tool)}
+                className="w-full p-3 text-left bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+              >
+                <div className="font-medium text-gray-900">Open with {tool.name}</div>
+                <div className="text-xs text-gray-500 mt-1">{tool.urlTemplate}</div>
+              </button>
+            ))}
+          </div>
+
+          {tools.length === 0 && (
+            <div className="text-center py-4 text-gray-500">
+              No tools enabled. Click settings to configure.
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="text-center py-8">
+          <div className="text-gray-500 mb-2">
+            📍 Navigate to a GitHub repository to use this extension
+          </div>
+          <div className="text-sm text-gray-400">
+            Current page: {currentUrl ? new URL(currentUrl).hostname : 'Unknown'}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
