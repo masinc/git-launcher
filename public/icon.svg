@@ -1,0 +1,29 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 外側の大きな円 -->
+  <!-- 透過度を0.2から0.5に変更し、透過を弱めました -->
+  <circle cx="64" cy="64" r="60" fill="url(#paint0_linear_1_2)" fill-opacity="0.9"/>
+  <!-- 内側の小さな円 (薄い水色に変更) -->
+  <circle cx="64" cy="64" r="30" fill="#E0F2FE"/>
+
+  <!-- アイコン全体をグループ化し、拡大・中央揃えする -->
+  <!-- SVGの中心(64,64)を中心に1.5倍に拡大します -->
+  <g transform="translate(64, 64) scale(1.5) translate(-64, -64)">
+    <!-- コードアイコンの背景の四角形 -->
+    <rect x="44" y="52" width="40" height="28" rx="4" fill="#1A202C"/>
+    <!-- コードタグの「</>」部分 -->
+    <path d="M57 60L52 64L57 68" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M71 60L76 64L71 68" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M66 58L62 70" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- 右側の矢印の線 -->
+    <line x1="84" y1="66" x2="98" y2="66" stroke="#1A202C" stroke-width="2" stroke-linecap="round"/>
+    <!-- 右側の矢印の先端のひし形 -->
+    <path d="M100 62L106 66L100 70L94 66L100 62Z" fill="#1A202C"/>
+  </g>
+
+  <defs>
+    <linearGradient id="paint0_linear_1_2" x1="4" y1="64" x2="124" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#BFDBFE" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+</svg>

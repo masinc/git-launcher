@@ -84,9 +84,12 @@ function App() {
   return (
     <div className="max-w-2xl mx-auto mt-8 p-6 bg-white min-h-screen">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          🚀 GitHub Launcher Settings
-        </h1>
+        <div className="flex items-center mb-2">
+          <img src="/icon.svg" alt="GitHub Launcher" className="w-12 h-12 mr-3" />
+          <h1 className="text-3xl font-bold text-gray-900">
+            GitHub Launcher Settings
+          </h1>
+        </div>
         <p className="text-gray-600">
           Configure tools and options for the GitHub Launcher extension.
         </p>
